@@ -1,0 +1,32 @@
+Sub 多文件合并()
+    Dim strFilePath As String, strFileName As String, k As Integer, num As Integer
+    Dim strFullName As String, wb As Workbook, x As Integer, y As Integer, tim As Single
+    tim = Timer '这个函数返回Single，所以定义Single类型的tim变量接受它
+    strFilePath = "D:\ExcelLesson\ExcelVBA入门19期\V19素材\*.xlsx"
+    strFileName = Dir(strFilePath)  '一个dir只能找一个文件
+    Application.ScreenUpdating = False      '关掉屏幕刷新
+    Do While strFileName <> ""
+        num = num + 1
+        strFullName = "D:\ExcelLesson\ExcelVBA入门19期\V19素材\" & strFileName '文件的完整路径
+        Set wb = Workbooks.Open(strFullName) '打开它,把对象存入变量必须加Set
+        x = wb.Worksheets(1).Range("A1").CurrentRegion.Rows.Count '获取打开的表有效行数
+        y = wb.Worksheets(1).Range("A1").CurrentRegion.Columns.Count '列数
+        If num = 1 Then '把它里面第一个工作表的有效数据复制到本工作表
+            ThisWorkbook.Worksheets(5).Range("A1").Resize(x, y).Value = _
+            wb.Worksheets(1).Range("A1").CurrentRegion.Value
+            ThisWorkbook.Worksheets(5).Cells(1, y + 1).Value = "来源文件"
+            ThisWorkbook.Worksheets(5).Cells(2, y + 1).Resize(x - 1, 1).Value = strFileName
+        Else
+            k = ThisWorkbook.Worksheets(5).Range("A1").CurrentRegion.Rows.Count + 1
+            ThisWorkbook.Worksheets(5).Range("A" & k).Resize(x - 1, y).Value = _
+            wb.Worksheets(1).Range("A2").Resize(x - 1, y).Value
+            ThisWorkbook.Worksheets(5).Cells(k, y + 1).Resize(x - 1, 1).Value = strFileName
+        End If
+        wb.Save '保存它
+        wb.Close '关掉它
+        strFileName = Dir '找下一个
+    Loop
+    ThisWorkbook.Worksheets(5).Columns("A:A").NumberFormatLocal = "yyyy/m/d"
+    Application.ScreenUpdating = True     '关掉屏幕刷新
+    MsgBox "完工，耗时：" & Timer - tim & "秒"
+End Sub
